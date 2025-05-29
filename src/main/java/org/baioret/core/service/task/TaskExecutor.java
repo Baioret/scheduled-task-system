@@ -35,7 +35,7 @@ public class TaskExecutor {
     }
 
     private void exponentialRetryPolicy(Long id, int retryCount, double delayBase, long limit, String category) {
-        long delayValue = getNextDelay(retryCount, delayBase, limit);
+        long delayValue = delayBase > 0 ? getNextDelay(retryCount, delayBase, limit) : getNextDelay(retryCount, limit);
         if (delayValue >= 0) {
             taskService.rescheduleTask(id, delayValue, category);
         } else {

@@ -65,26 +65,28 @@ public class TaskScheduler implements TaskSchedulerService {
     }
 
     @Override
-    public void cancelTask(Long id, String category) {
-        LogService.logger.info(String.format("Process cancel task with id: %s and category: '%s' started", id, category));
+    public boolean cancelTask(Long id, String category) {
+        LogService.logger.info(String.format("Process cancel task with id %s and category '%s' started", id, category));
         ScheduledTask task = taskService.getTask(id, category);
         try {
             tryToCancelTask(id, category, task);
+            return true;
         } catch (Exception e) {
-            LogService.logger.severe(String.format("Process cancel task with id: %s and category: '%s' has been failed. ", id, category) + e.getMessage());
+            LogService.logger.severe(String.format("Process cancel task with id %s and category '%s' has been failed. ", id, category) + e.getMessage());
         }
+        return false;
     }
 
     private void tryToCancelTask(Long id, String category, ScheduledTask task) {
         if (task != null) {
             if (task.getStatus() == TaskStatus.PENDING) {
                 taskService.cancelTask(id, category);
-                LogService.logger.info(String.format("Process cancel Task with id: %s and category: '%s' completed. Task has been canceled successfully", id, category));
+                LogService.logger.info(String.format("Process cancel Task with id %s and category '%s' completed. Task has been canceled successfully", id, category));
             } else {
-                throw new RuntimeException(String.format("Cannot cancel task with id: %s and category: '%s'. Task status is '%s'", id, category, task.getStatus().name()));
+                throw new RuntimeException(String.format("Cannot cancel task with id %s and category '%s'. Task status is '%s'", id, category, task.getStatus().name()));
             }
         } else {
-            throw new RuntimeException(String.format("Cannot cancel task with id: %s and category: '%s'. Task not found", id, category));
+            throw new RuntimeException(String.format("Cannot cancel task with id %s and category '%s'. Task not found", id, category));
         }
     }
 }

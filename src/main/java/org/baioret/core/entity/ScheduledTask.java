@@ -13,7 +13,7 @@ public class ScheduledTask {
     private String path;
     private Map<String, String> params;
     private Map<String, String> retryParams = null;
-    private TaskStatus status = TaskStatus.NONE;
+    private TaskStatus status = TaskStatus.PENDING;
     private Timestamp executionTime;
     private int retryCount = 0;
 

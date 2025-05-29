@@ -24,9 +24,9 @@ public class RetryValidator {
                     return false;
                 }
             } else {
-                if (delayBase <= 0) {
+                if (delayBase < 0) {
                     LogService.logger.severe("ERROR. You are trying to schedule task with retry and function delay policy. " +
-                            "Delay base should be greater than 0. You have set the value: " + delayBase);
+                            "Delay base should be 0 (default) or greater than 0. You have set the value: " + delayBase);
                     return false;
                 }
 
