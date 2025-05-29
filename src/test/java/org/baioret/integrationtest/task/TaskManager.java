@@ -4,6 +4,7 @@ import org.baioret.core.schedulable.Schedulable;
 import org.baioret.core.service.retry.Retry;
 import org.baioret.core.service.task.TaskScheduler;
 import org.baioret.core.service.task.TaskSchedulerService;
+import org.baioret.integrationtest.EuropeanDateFormatter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -40,11 +41,11 @@ public class TaskManager {
 
     public void initRandomTask() {
         Class<? extends Schedulable> randomClass = classes.get(RANDOM.nextInt(classes.size()));
-        String executionTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(30)).toString();
+        String executionTime = Timestamp.valueOf(LocalDateTime.now().plusSeconds(10)).toString();
         Retry randomRetryParams = retries.get(RANDOM.nextInt(retries.size()));
         Map<String, String> randomParams = new HashMap<>();
         Random rand = new Random();
-        randomParams.put("ID", (rand.nextInt(500) + 1) + "");
+        randomParams.put("ID", (rand.nextInt(5000) + 1) + "");
         randomParams.put("message", "Test message");
         Long taskId = scheduleTask(randomClass, randomParams, executionTime, randomRetryParams);
         putInTasksId(randomClass, taskId);
@@ -73,25 +74,29 @@ public class TaskManager {
                 "\nКласс - " + className +
                 "\nId - " + taskId +
                 "\nВремя выполнения - " + executionTime +
-                "\nДата создания - " + LocalDateTime.now() + "\n");
+                "\nДата создания - " + getStringTime(LocalDateTime.now()) + "\n");
     }
 
     public void cancelRandomTask() {
-        String randomCategory = classes.get(RANDOM.nextInt(classes.size())).getSimpleName();
-        List<Long> tasksIdByCategory = tasksId.get(randomCategory);
+        Class<? extends Schedulable> randomCategory = classes.get(RANDOM.nextInt(classes.size()));
+        List<Long> tasksIdByCategory = tasksId.get(randomCategory.getSimpleName());
         if (tasksIdByCategory != null) {
             Long randomTaskId = tasksIdByCategory.get(RANDOM.nextInt(tasksIdByCategory.size()));
             if (taskScheduler.cancelTask(randomTaskId, randomCategory)) {
-                printCanceledTaskInfo(randomCategory, randomTaskId);
+                printCanceledTaskInfo(randomCategory.getSimpleName(), randomTaskId);
             }
             else System.out.println("Задачу [" + randomCategory + "] с id " + randomTaskId + " не удалось отменить: статус задачи не 'PENDING'\n");
         }
+    }
+
+    private String getStringTime(LocalDateTime time) {
+        return EuropeanDateFormatter.getFromLocalDateTime(time);
     }
 
     private void printCanceledTaskInfo(String className, Long taskId) {
         System.out.println("Отменена задача:" +
                 "\nId: " + taskId +
                 "\nКатегория - " + className +
-                "\nДата отмены - " + LocalDateTime.now() + "\n");
+                "\nДата отмены - " + getStringTime(LocalDateTime.now()) + "\n");
     }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface TaskSchedulerService {
-    boolean cancelTask(Long id, String category);
-    <T extends Schedulable> Optional<Long> scheduleTask(Class<T> scheduleClass, Map<String, String> params,
+    <T extends Schedulable> boolean cancelTask(Long id, Class<T> schedulable);
+    <T extends Schedulable> Optional<Long> scheduleTask(Class<T> schedulable, Map<String, String> params,
                                                         String executionTime, Retry retry);
 }

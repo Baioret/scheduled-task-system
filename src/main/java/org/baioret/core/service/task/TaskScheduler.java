@@ -25,13 +25,13 @@ public class TaskScheduler implements TaskSchedulerService {
     }
 
     @Override
-    public <T extends Schedulable> Optional<Long> scheduleTask(Class<T> scheduleClass, Map<String, String> params, String executionTime, Retry retry) {
+    public <T extends Schedulable> Optional<Long> scheduleTask(Class<T> schedulable, Map<String, String> params, String executionTime, Retry retry) {
         try {
-            LogService.logger.info("Process scheduleTask for '" + scheduleClass.getName() + "' started");
+            LogService.logger.info("Process scheduleTask for '" + schedulable.getName() + "' started");
             if (!RetryValidator.validateParams(retry)) {
                 throw new RuntimeException("Delay params validation failed");
             }
-            ScheduledTask savedTask = createAndSaveTask(scheduleClass, params, executionTime);
+            ScheduledTask savedTask = createAndSaveTask(schedulable, params, executionTime);
             createAndSaveRetryParams(retry, savedTask);
 
             LogService.logger.info("Process scheduleTask has been completed. Returns id for task: " + savedTask.getId());
@@ -42,11 +42,11 @@ public class TaskScheduler implements TaskSchedulerService {
         }
     }
 
-    private <T extends Schedulable> ScheduledTask createAndSaveTask(Class<T> scheduleClass, Map<String, String> params, String executionTime) {
+    private <T extends Schedulable> ScheduledTask createAndSaveTask(Class<T> schedulable, Map<String, String> params, String executionTime) {
         ScheduledTask task = new ScheduledTask();
-        String category = scheduleClass.getSimpleName();
+        String category = schedulable.getSimpleName();
         task.setCategory(category);
-        task.setPath(scheduleClass.getName());
+        task.setPath(schedulable.getName());
         task.setParams(params);
         task.setExecutionTime(Timestamp.valueOf(executionTime));
         task.setId(taskService.save(task, category));
@@ -65,14 +65,14 @@ public class TaskScheduler implements TaskSchedulerService {
     }
 
     @Override
-    public boolean cancelTask(Long id, String category) {
-        LogService.logger.info(String.format("Process cancel task with id %s and category '%s' started", id, category));
-        ScheduledTask task = taskService.getTask(id, category);
+    public <T extends Schedulable> boolean cancelTask(Long id, Class<T> schedulable) {
+        LogService.logger.info(String.format("Process cancel task with id %s and category '%s' started", id, schedulable));
+        ScheduledTask task = taskService.getTask(id, schedulable.getSimpleName());
         try {
-            tryToCancelTask(id, category, task);
+            tryToCancelTask(id, schedulable.getSimpleName(), task);
             return true;
         } catch (Exception e) {
-            LogService.logger.severe(String.format("Process cancel task with id %s and category '%s' has been failed. ", id, category) + e.getMessage());
+            LogService.logger.severe(String.format("Process cancel task with id %s and category '%s' has been failed. ", id, schedulable) + e.getMessage());
         }
         return false;
     }

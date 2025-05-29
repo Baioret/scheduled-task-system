@@ -28,8 +28,9 @@ public class Main {
         String executionTime = Timestamp.valueOf(LocalDateTime.now()).toString();
         Retry defaultRetryParams = new Retry.RetryBuilder().build();
 
-        //taskScheduler.scheduleTask(Task1.class, params, executionTime, defaultRetryParams);
-        //taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
+        taskScheduler.scheduleTask(Task1.class, params, executionTime, defaultRetryParams);
+        taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
+        taskScheduler.cancelTask(82L, Task2.class);
 
         taskWorkerPool.initWorkers(Map.of(Task1.class, 2));
         taskWorkerPool.initWorkers(Map.of(Task2.class, 1));

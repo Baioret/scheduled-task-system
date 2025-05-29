@@ -2,6 +2,7 @@ package org.baioret.integrationtest.worker;
 
 import org.baioret.core.schedulable.Schedulable;
 import org.baioret.core.worker.TaskWorkerPool;
+import org.baioret.integrationtest.EuropeanDateFormatter;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,7 +36,7 @@ public class WorkerManager {
                 "\nКатегория - " + randomCategory +
                 "\nКол-во потоков - " + threadCount +
                 "\nИмя потока - " + Thread.currentThread().getName() +
-                "\nДата создания - " + LocalDateTime.now() + "\n");
+                "\nДата создания - " + getStringTime(LocalDateTime.now()) + "\n");
     }
 
     public void stopRandomWorker() {
@@ -53,10 +54,14 @@ public class WorkerManager {
         }
     }
 
+    private String getStringTime(LocalDateTime time) {
+        return EuropeanDateFormatter.getFromLocalDateTime(time);
+    }
+
     private void printStoppedWorkerInfo(String randomCategory, UUID randomWorkerId) {
         System.out.println("Остановлен worker: " +
                 "\nКатегория - " + randomCategory +
                 "\nId - " + randomWorkerId +
-                "\nДата остановки - " + LocalDateTime.now() + "\n");
+                "\nДата остановки - " + getStringTime(LocalDateTime.now()) + "\n");
     }
 }
