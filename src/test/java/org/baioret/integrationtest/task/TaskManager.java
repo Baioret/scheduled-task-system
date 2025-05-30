@@ -85,7 +85,7 @@ public class TaskManager {
             if (taskScheduler.cancelTask(randomTaskId, randomCategory)) {
                 printCanceledTaskInfo(randomCategory.getSimpleName(), randomTaskId);
             }
-            else System.out.println("Задачу [" + randomCategory + "] с id " + randomTaskId + " не удалось отменить: статус задачи не 'PENDING'\n");
+            else System.out.println("Задачу [" + randomCategory.getSimpleName() + "] с id " + randomTaskId + " не удалось отменить: статус задачи не 'PENDING'\n");
         }
     }
 
