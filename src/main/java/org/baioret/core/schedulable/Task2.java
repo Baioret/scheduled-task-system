@@ -19,10 +19,12 @@ public class Task2 implements Schedulable {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("[TASK 2] Message for User with ID " + params.get("ID") + ": " + params.get("message"));
-            LogService.logger.info("[TASK 2] Message for User with ID " + params.get("ID") + ": " + params.get("message"));
+            System.out.println("[TASK 2] Message for User with ID " +
+                    params.get("ID") + ": " + params.get("message"));
             return true;
         }
         return false;
     }
 }
+
+

@@ -28,11 +28,24 @@ public class Main {
         String executionTime = Timestamp.valueOf(LocalDateTime.now()).toString();
         Retry defaultRetryParams = new Retry.RetryBuilder().build();
 
-        taskScheduler.scheduleTask(Task1.class, params, executionTime, defaultRetryParams);
         taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
 
-        taskWorkerPool.initWorkers(Map.of(Task1.class, 2));
-        taskWorkerPool.initWorkers(Map.of(Task2.class, 1));
+
+        taskScheduler.cancelTask(100L, Task1.class);
+
+        taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
+
+        Map<Class<? extends Schedulable>, Integer> workers = Map.of(
+                Task1.class, 2,
+                Task2.class, 1);
+        taskWorkerPool.initWorkers(workers);
+
+        taskWorkerPool.initWorker(Task1.class, 1);
+
+        Optional<List<UUID>> workerIds = taskWorkerPool.
+                getWorkersIdByCategory(Task2.class.getSimpleName());
+        workerIds.ifPresent(uuids -> taskWorkerPool.
+                shutdownWorker(Task2.class.getSimpleName(), uuids.get(0)));
     }
 
     private static void initSystem() {

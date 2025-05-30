@@ -1,7 +1,6 @@
 package org.baioret.core.service.retry;
 
 import org.baioret.core.entity.RetryParams;
-import org.baioret.core.logging.LogService;
 import org.baioret.core.repository.RetryRepository;
 
 public class RetryPolicy implements RetryService {
@@ -26,7 +25,5 @@ public class RetryPolicy implements RetryService {
     @Override
     public void save(RetryParams retryParams, String category) {
         retryRepository.save(retryParams, category);
-        LogService.logger.info(String.format("Retry params for task with id %s and category '%s' successfully created: object %s",
-                retryParams.getTaskId(), category, retryParams));
     }
 }

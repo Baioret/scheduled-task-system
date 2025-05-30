@@ -54,15 +54,15 @@ public class TaskWorker implements Runnable {
                     LogService.logger.severe(e.getMessage());
                 }
                 if (nextTask != null) {
-                    LogService.logger.info(String.format("Worker %s start execute task with id: %s and category '%s'",
+                    LogService.logger.info(String.format("Worker %s start execute task with id %s and category '%s'",
                             workerId, nextTask.getId(), category));
                     Schedulable taskClass = (Schedulable) Class.forName(nextTask.getPath()).getDeclaredConstructor().newInstance();
                     if (executeTask(taskClass, nextTask.getParams())) {
                         taskService.changeTaskStatus(nextTask.getId(), TaskStatus.COMPLETED, category);
-                        LogService.logger.info(String.format("Task with id %s and category '%s' has been executed.",
+                        LogService.logger.info(String.format("Task with id %s and category '%s' has been executed",
                                 nextTask.getId(), category));
                     } else {
-                        LogService.logger.info(String.format("Task with id %s and category '%s' has been failed.",
+                        LogService.logger.info(String.format("Execution of task with id %s and category '%s' has been failed",
                                 nextTask.getId(), category));
                         taskService.changeTaskStatus(nextTask.getId(), TaskStatus.RETRYING, category);
                         taskExecutor.executeRetryPolicyForTask(nextTask.getId(), nextTask.getCategory(), nextTask.getRetryCount());

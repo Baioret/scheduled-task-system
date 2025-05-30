@@ -16,7 +16,7 @@ public class TaskWorkerPool {
     public TaskWorkerPool() {
     }
 
-    public <T extends Schedulable> void initWorkers(Map<Class<T>, Integer> categoriesAndThreads) {
+    public void initWorkers(Map<Class<? extends Schedulable>, Integer> categoriesAndThreads) {
         try {
             tryInitWorkers(categoriesAndThreads);
         } catch (Exception e) {
@@ -24,10 +24,10 @@ public class TaskWorkerPool {
         }
     }
 
-    private <T extends Schedulable> void tryInitWorkers(Map<Class<T>, Integer> categoriesAndThreads) {
+    private void tryInitWorkers(Map<Class<? extends Schedulable>, Integer> categoriesAndThreads) {
         LogService.logger.info("Process initializing workers started");
         for (var categoryAndThreads : categoriesAndThreads.entrySet()) {
-            Class<T> taskClass = categoryAndThreads.getKey();
+            Class<? extends Schedulable> taskClass = categoryAndThreads.getKey();
             int threadsCount = categoryAndThreads.getValue();
             initWorker(taskClass, threadsCount);
         }
@@ -45,13 +45,11 @@ public class TaskWorkerPool {
                 putInCategoriesAndIdWorkers(category, workerId);
                 taskWorkerMap.put(Collections.singletonMap(category, workerId), taskWorker);
                 threadPool.submit(taskWorker);
-                LogService.logger.info(String.format("Worker initializing with id: %s category '%s'",
+                LogService.logger.info(String.format("Worker with id %s and category '%s' has been initialized",
                         workerId, category));
             }
-            LogService.logger.info(String.format("Worker pool initializing with for category: '%s', with %s thread(s) %s",
-                    category, threadsCount, threadPool));
         } catch (Exception e) {
-            LogService.logger.severe(String.format("Worker with category: '%s' initializing failed. ", taskClass.getSimpleName()) + e.getMessage());
+            LogService.logger.severe(String.format("Worker with category '%s' initializing failed. ", taskClass.getSimpleName()) + e.getMessage());
         }
     }
 
@@ -73,10 +71,10 @@ public class TaskWorkerPool {
                 taskWorkerMap.remove(Collections.singletonMap(category, workerId), worker);
                 categoriesAndIdWorkers.get(category).remove(workerId);
             } else {
-                LogService.logger.warning(String.format("Worker with id: %s and category: '%s' not found", workerId, category));
+                LogService.logger.warning(String.format("Worker with id %s and category '%s' not found", workerId, category));
             }
         } catch (Exception e) {
-            LogService.logger.severe(String.format("Failed to stop worker with id: %s and category: '%s'. ", workerId, category) + e.getMessage());
+            LogService.logger.severe(String.format("Cannot stop worker with id %s and category '%s': ", workerId, category) + e.getMessage());
         }
     }
 

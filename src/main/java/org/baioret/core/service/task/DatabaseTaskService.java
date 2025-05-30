@@ -20,7 +20,7 @@ public class DatabaseTaskService implements TaskService {
         if (task != null) {
             return task;
         } else {
-            throw new RuntimeException(String.format("Can`t get task with id: %s and category: '%s'. Task not found", id, category));
+            throw new RuntimeException(String.format("Can`t get task with id %s and category '%s'. Task not found", id, category));
         }
     }
 
@@ -29,7 +29,7 @@ public class DatabaseTaskService implements TaskService {
         TaskStatus currentStatus = getTask(id, category).getStatus();
         if (!(currentStatus.equals(taskStatus))) {
             taskRepository.changeTaskStatus(id, taskStatus, category);
-            LogService.logger.info(String.format("Status for task with id: %s and category: '%s' changed from status '%s' to status '%s'",
+            LogService.logger.info(String.format("Status for task with id %s and category '%s' changed from '%s' to '%s'",
                     id, category, currentStatus.name(), taskStatus.name()));
         }
     }
@@ -44,11 +44,11 @@ public class DatabaseTaskService implements TaskService {
         if (delay >= 0) {
             Timestamp time = new Timestamp(getTask(id, category).getExecutionTime().getTime() + delay);
             taskRepository.rescheduleTask(id, delay, category);
-            LogService.logger.info(String.format("Reschedule task with id: %s and category: '%s'. New execution time = %s",
+            LogService.logger.info(String.format("Reschedule task with id %s and category '%s'. New execution time = %s",
                     id, category, time));
             taskRepository.changeTaskStatus(id, TaskStatus.PENDING, category);
         } else {
-            throw new RuntimeException(String.format("Can`t reschedule task with id: %s and category: '%s'. Value of delay < 0", id, category));
+            throw new RuntimeException(String.format("Can`t reschedule task with id %s and category '%s'. Value of delay < 0", id, category));
         }
     }
 
@@ -65,7 +65,7 @@ public class DatabaseTaskService implements TaskService {
     @Override
     public Long save(ScheduledTask task, String category) {
         Long id = taskRepository.save(task, category);
-        LogService.logger.info(String.format("Task with id: %s successfully created: object %s", id, task));
+        LogService.logger.info(String.format("Task with id %s and category %s has been created", id, category));
         return id;
     }
 

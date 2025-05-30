@@ -20,7 +20,6 @@ public class Task1 implements Schedulable {
                 throw new RuntimeException(e);
             }
             System.out.println("[TASK 1] Message for User with ID " + params.get("ID") + ": " + params.get("message"));
-            LogService.logger.info("[TASK 1] Message for User with ID " + params.get("ID") + ": " + params.get("message"));
             return true;
         }
         return false;

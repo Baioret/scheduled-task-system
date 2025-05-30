@@ -27,17 +27,17 @@ public class TaskScheduler implements TaskSchedulerService {
     @Override
     public <T extends Schedulable> Optional<Long> scheduleTask(Class<T> schedulable, Map<String, String> params, String executionTime, Retry retry) {
         try {
-            LogService.logger.info("Process scheduleTask for '" + schedulable.getName() + "' started");
             if (!RetryValidator.validateParams(retry)) {
-                throw new RuntimeException("Delay params validation failed");
+                LogService.logger.severe("Retry params validation failed");
+                return Optional.empty();
             }
             ScheduledTask savedTask = createAndSaveTask(schedulable, params, executionTime);
             createAndSaveRetryParams(retry, savedTask);
 
-            LogService.logger.info("Process scheduleTask has been completed. Returns id for task: " + savedTask.getId());
+            LogService.logger.info("Task with category '" + schedulable.getSimpleName() + "' has been scheduled with id " + savedTask.getId());
             return Optional.of(savedTask.getId());
         } catch (Exception e) {
-            LogService.logger.severe("Process schedule task failed. " + e.getMessage());
+            LogService.logger.severe("Failed to schedule task with category " + schedulable.getSimpleName() + ": " + e.getMessage());
             return Optional.empty();
         }
     }
@@ -66,13 +66,12 @@ public class TaskScheduler implements TaskSchedulerService {
 
     @Override
     public <T extends Schedulable> boolean cancelTask(Long id, Class<T> schedulable) {
-        LogService.logger.info(String.format("Process cancel task with id %s and category '%s' started", id, schedulable));
         ScheduledTask task = taskService.getTask(id, schedulable.getSimpleName());
         try {
             tryToCancelTask(id, schedulable.getSimpleName(), task);
             return true;
         } catch (Exception e) {
-            LogService.logger.severe(String.format("Process cancel task with id %s and category '%s' has been failed. ", id, schedulable) + e.getMessage());
+            LogService.logger.severe(String.format("Cannot cancel task with id %s and category '%s': ", id, schedulable) + e.getMessage());
         }
         return false;
     }
@@ -81,7 +80,7 @@ public class TaskScheduler implements TaskSchedulerService {
         if (task != null) {
             if (task.getStatus() == TaskStatus.PENDING) {
                 taskService.cancelTask(id, category);
-                LogService.logger.info(String.format("Process cancel Task with id %s and category '%s' completed. Task has been canceled successfully", id, category));
+                LogService.logger.info(String.format("Task with id %s and category '%s' has been canceled", id, category));
             } else {
                 throw new RuntimeException(String.format("Cannot cancel task with id %s and category '%s'. Task status is '%s'", id, category, task.getStatus().name()));
             }

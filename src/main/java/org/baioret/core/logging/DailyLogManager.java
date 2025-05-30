@@ -37,7 +37,7 @@ public class DailyLogManager {
         LogService.logger.addHandler(currentFileHandler);
 
         currentDate = today;
-        LogService.logger.info("Logger switched to file: " + fileName);
+        LogService.logger.info("Logger switched to file " + fileName);
     }
 
     private static void startDateCheckThread() {
