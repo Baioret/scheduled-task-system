@@ -29,21 +29,18 @@ public class JdbcRetryRepository implements RetryRepository {
             try (ResultSet result = stmt.executeQuery()) {
                 if (result.next()) {
                     RetryParams retryParams = new RetryParams(taskId);
-                    retryParams.setWithRetry(result.getBoolean("with_retry"));
-                    retryParams.setRetryCount(result.getInt("retry_count"));
-                    retryParams.setValueIsFixed(result.getBoolean("value_is_fixed"));
-                    retryParams.setFixDelayValue(result.getLong("fix_delay_value"));
-                    retryParams.setDelayBase(result.getLong("delay_base"));
+                    retryParams.setMaxAttempts(result.getInt("max_attempts"));
+                    retryParams.setDelayValueIsFixed(result.getBoolean("value_is_fixed"));
+                    retryParams.setFixedDelayValue(result.getLong("fixed_delay_value"));
+                    retryParams.setDelayBase(result.getDouble("delay_base"));
                     retryParams.setDelayLimit(result.getLong("delay_limit"));
                     return retryParams;
-                }
+                } else return null;
             }
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return null;
     }
 
     @Override
@@ -51,19 +48,18 @@ public class JdbcRetryRepository implements RetryRepository {
 
         createTableIfNotExists(category);
 
-        String sql = "INSERT INTO " + tableName + category + " (task_id, with_retry, retry_count, value_is_fixed, fix_delay_value, delay_base, delay_limit)" +
-                " VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + tableName + category + " (task_id, max_attempts, value_is_fixed, fixed_delay_value, delay_base, delay_limit)" +
+                " VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             stmt.setLong(1, retryParams.getTaskId());
-            stmt.setBoolean(2, retryParams.isWithRetry());
-            stmt.setInt(3, retryParams.getRetryCount());
-            stmt.setBoolean(4, retryParams.isValueIsFixed());
-            stmt.setLong(5, retryParams.getFixDelayValue());
-            stmt.setLong(6, retryParams.getDelayBase());
-            stmt.setLong(7, retryParams.getDelayLimit());
+            stmt.setInt(2, retryParams.getMaxAttempts());
+            stmt.setBoolean(3, retryParams.delayValueIsFixed());
+            stmt.setLong(4, retryParams.getFixedDelayValue());
+            stmt.setDouble(5, retryParams.getDelayBase());
+            stmt.setLong(6, retryParams.getDelayLimit());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -79,11 +75,10 @@ public class JdbcRetryRepository implements RetryRepository {
 
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + category + " (\n" +
                 "task_id BIGINT PRIMARY KEY,\n" +
-                "    with_retry BOOL NOT NULL,\n" +
-                "    retry_count INT,\n" +
+                "    max_attempts INT,\n" +
                 "    value_is_fixed BOOL,\n" +
-                "    fix_delay_value BIGINT,\n" +
-                "    delay_base BIGINT,\n" +
+                "    fixed_delay_value BIGINT,\n" +
+                "    delay_base DOUBLE,\n" +
                 "    delay_limit BIGINT,\n" +
                 "    FOREIGN KEY (task_id) REFERENCES " + taskTableName + category + " (id) ON DELETE CASCADE);";
 

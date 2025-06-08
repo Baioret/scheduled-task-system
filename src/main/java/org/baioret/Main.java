@@ -27,25 +27,28 @@ public class Main {
                 "message", "test params");
         String executionTime = Timestamp.valueOf(LocalDateTime.now()).toString();
         Retry defaultRetryParams = new Retry.RetryBuilder().build();
+        Retry exponentialRetryParams = new Retry.RetryBuilder().setMaxAttemptsCount(3).setDelayLimit(100000L).build();
 
-        taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
+        taskScheduler.scheduleTask(FailingTask.class, params, executionTime, exponentialRetryParams);
+        taskScheduler.scheduleTask(FailingTask.class, params, executionTime, exponentialRetryParams);
 
+        taskScheduler.scheduleTask(FailingTask.class, params, executionTime);
 
-        taskScheduler.cancelTask(100L, Task1.class);
+        //taskScheduler.cancelTask(100L, Task1.class);
 
-        taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
+        //taskScheduler.scheduleTask(Task2.class, params, executionTime, defaultRetryParams);
 
-        Map<Class<? extends Schedulable>, Integer> workers = Map.of(
+        /*Map<Class<? extends Schedulable>, Integer> workers = Map.of(
                 Task1.class, 2,
                 Task2.class, 1);
-        taskWorkerPool.initWorkers(workers);
+        taskWorkerPool.initWorkers(workers);*/
 
-        taskWorkerPool.initWorker(Task1.class, 1);
+        taskWorkerPool.initWorker(FailingTask.class, 2);
 
-        Optional<List<UUID>> workerIds = taskWorkerPool.
+        /*Optional<List<UUID>> workerIds = taskWorkerPool.
                 getWorkersIdByCategory(Task2.class.getSimpleName());
         workerIds.ifPresent(uuids -> taskWorkerPool.
-                shutdownWorker(Task2.class.getSimpleName(), uuids.get(0)));
+                shutdownWorker(Task2.class.getSimpleName(), uuids.get(0)));*/
     }
 
     private static void initSystem() {

@@ -3,6 +3,7 @@ package org.baioret.core.holder;
 import org.baioret.core.service.retry.RetryPolicy;
 import org.baioret.core.service.retry.RetryService;
 import org.baioret.core.service.task.DatabaseTaskService;
+import org.baioret.core.service.task.TaskManager;
 import org.baioret.core.service.task.TaskService;
 
 public class ServiceHolder {
@@ -20,5 +21,13 @@ public class ServiceHolder {
 
     public static RetryService getRetryService() {
         return RetryServiceHolderInstance.INSTANCE;
+    }
+
+    public static class TaskManagerHolderInstance {
+        static final TaskManager INSTANCE = new TaskManager(getTaskService(), getRetryService());
+    }
+
+    public static TaskManager getTaskManager() {
+        return TaskManagerHolderInstance.INSTANCE;
     }
 }

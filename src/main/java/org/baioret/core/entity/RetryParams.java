@@ -2,23 +2,21 @@ package org.baioret.core.entity;
 
 public class RetryParams {
     private Long taskId;
-    private boolean withRetry = false;
-    private int retryCount = 0;
-    private boolean valueIsFixed = true;
-    private Long fixDelayValue = null;
-    private Long delayBase = null;
+    private int maxAttempts = 0;
+    private boolean delayValueIsFixed = true;
+    private Long fixedDelayValue = null;
+    private double delayBase = 0;
     private Long delayLimit = null;
 
     public RetryParams(Long taskId) {
         this.taskId = taskId;
     }
 
-    public RetryParams(Long taskId, boolean withRetry, int retryCount, boolean valueIsFixed, Long fixDelayValue, Long delayBase, Long delayLimit) {
+    public RetryParams(Long taskId, int maxAttempts, boolean delayValueIsFixed, Long fixedDelayValue, double delayBase, Long delayLimit) {
         this.taskId = taskId;
-        this.withRetry = withRetry;
-        this.retryCount = retryCount;
-        this.valueIsFixed = valueIsFixed;
-        this.fixDelayValue = fixDelayValue;
+        this.maxAttempts = maxAttempts;
+        this.delayValueIsFixed = delayValueIsFixed;
+        this.fixedDelayValue = fixedDelayValue;
         this.delayBase = delayBase;
         this.delayLimit = delayLimit;
     }
@@ -32,43 +30,35 @@ public class RetryParams {
         this.taskId = taskId;
     }
 
-    public boolean isWithRetry() {
-        return withRetry;
+    public int getMaxAttempts() {
+        return maxAttempts;
     }
 
-    public void setWithRetry(boolean withRetry) {
-        this.withRetry = withRetry;
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
     }
 
-    public int getRetryCount() {
-        return retryCount;
+    public boolean delayValueIsFixed() {
+        return delayValueIsFixed;
     }
 
-    public void setRetryCount(int retryCount) {
-        this.retryCount = retryCount;
+    public void setDelayValueIsFixed(boolean delayValueIsFixed) {
+        this.delayValueIsFixed = delayValueIsFixed;
     }
 
-    public boolean isValueIsFixed() {
-        return valueIsFixed;
+    public Long getFixedDelayValue() {
+        return fixedDelayValue;
     }
 
-    public void setValueIsFixed(boolean valueIsFixed) {
-        this.valueIsFixed = valueIsFixed;
+    public void setFixedDelayValue(Long fixedDelayValue) {
+        this.fixedDelayValue = fixedDelayValue;
     }
 
-    public Long getFixDelayValue() {
-        return fixDelayValue;
-    }
-
-    public void setFixDelayValue(Long fixDelayValue) {
-        this.fixDelayValue = fixDelayValue;
-    }
-
-    public Long getDelayBase() {
+    public double getDelayBase() {
         return delayBase;
     }
 
-    public void setDelayBase(Long delayBase) {
+    public void setDelayBase(double delayBase) {
         this.delayBase = delayBase;
     }
 

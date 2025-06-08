@@ -8,8 +8,6 @@ import java.util.List;
 public interface TaskRepository {
     Long save(ScheduledTask task, String category);
 
-    void cancelTask(Long id, String category);
-
     void changeTaskStatus(Long id, TaskStatus status, String category);
 
     void increaseRetryCountForTask(Long id, String category);

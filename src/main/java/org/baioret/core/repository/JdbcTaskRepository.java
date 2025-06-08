@@ -33,7 +33,7 @@ public class JdbcTaskRepository implements TaskRepository {
         createUpdateEvent(category);
 
         String sql = "INSERT INTO " + tableName + category +
-                " (category, canonical_name, params, status, execution_time) " +
+                " (category, path, params, status, execution_time) " +
                 "VALUES (?,?,?,?,?)";
 
         try (Connection connection = dataSource.getConnection()) {
@@ -72,11 +72,11 @@ public class JdbcTaskRepository implements TaskRepository {
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + category + " (\n" +
                 "    id BIGINT PRIMARY KEY AUTO_INCREMENT,\n" +
                 "    category VARCHAR(50) NOT NULL,\n" +
-                "    canonical_name VARCHAR(255) NOT NULL,\n" +
+                "    path VARCHAR(255) NOT NULL,\n" +
                 "    params JSON NOT NULL,\n" +
                 "    status ENUM('PENDING','RETRYING','READY','PROCESSING','FAILED','COMPLETED','CANCELED','NONE') NOT NULL DEFAULT 'NONE',\n" +
                 "    execution_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n" +
-                "    retry_count INT DEFAULT 0,\n" +
+                "    attempt INT DEFAULT 1,\n" +
                 "    revision INT NOT NULL DEFAULT 1);";
 
         try (Connection connection = dataSource.getConnection()) {
@@ -91,7 +91,7 @@ public class JdbcTaskRepository implements TaskRepository {
     private void createUpdateEvent(String category) {
 
         String sql1 = "CREATE EVENT IF NOT EXISTS auto_update_" + tableName + category +
-                " ON SCHEDULE EVERY 1 MINUTE" +
+                " ON SCHEDULE EVERY 5 SECOND" +
                 " DO" +
                 " UPDATE " + tableName + category +
                 " SET status = 'READY'" +
@@ -110,14 +110,6 @@ public class JdbcTaskRepository implements TaskRepository {
             throw new RuntimeException(e);
         }
     }
-
-
-    @Override
-    public void cancelTask(Long id, String category) {
-
-        changeTaskStatus(id, TaskStatus.CANCELED, category);
-    }
-
 
     @Override
     public void changeTaskStatus(Long id, TaskStatus status, String category) {
@@ -164,7 +156,7 @@ public class JdbcTaskRepository implements TaskRepository {
     @Override
     public void increaseRetryCountForTask(Long id, String category) {
 
-        String sql = "UPDATE " + tableName + category + " SET retry_count = retry_count + 1 WHERE id = ?";
+        String sql = "UPDATE " + tableName + category + " SET attempt = attempt + 1 WHERE id = ?";
 
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement stmt = connection.prepareStatement(sql);
@@ -173,7 +165,7 @@ public class JdbcTaskRepository implements TaskRepository {
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Failed to increase retry count for task with ID: " + id);
+                throw new SQLException("Failed to increase attempt for task with ID: " + id);
             }
 
         } catch (Exception e) {
@@ -229,7 +221,7 @@ public class JdbcTaskRepository implements TaskRepository {
             }));
             task.setStatus(TaskStatus.valueOf(result.getString(5)));
             task.setExecutionTime(result.getTimestamp(6));
-            task.setRetryCount(result.getInt(7));
+            task.setAttempt(result.getInt(7));
 
             return task;
         } catch (Exception e) {

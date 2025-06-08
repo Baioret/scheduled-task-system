@@ -12,10 +12,9 @@ public class ScheduledTask {
     private String category;
     private String path;
     private Map<String, String> params;
-    private Map<String, String> retryParams = null;
     private TaskStatus status = TaskStatus.PENDING;
     private Timestamp executionTime;
-    private int retryCount = 0;
+    private int attempt = 1;
 
     public ScheduledTask(String category, Timestamp executionTime) {
         this.category = category;
@@ -37,7 +36,7 @@ public class ScheduledTask {
                         ": category: " + this.category +
                         ", status: " + this.status +
                         ", execution time: " + this.executionTime +
-                        ", retry count: " + this.retryCount;
+                        ", attempt: " + this.attempt;
 
     }
 
@@ -73,12 +72,12 @@ public class ScheduledTask {
         this.executionTime = executionTime;
     }
 
-    public int getRetryCount() {
-        return retryCount;
+    public int getAttempt() {
+        return attempt;
     }
 
-    public void setRetryCount(int retryCount) {
-        this.retryCount = retryCount;
+    public void setAttempt(int attempt) {
+        this.attempt = attempt;
     }
 
     public String getPath() {

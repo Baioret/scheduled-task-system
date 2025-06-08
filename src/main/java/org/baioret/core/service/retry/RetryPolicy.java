@@ -17,8 +17,7 @@ public class RetryPolicy implements RetryService {
         if (retryParams != null) {
             return retryParams;
         } else {
-            throw new RuntimeException(String.format("Can not get retry parameters: task with id %s and category '%s' not found",
-                    taskId, category));
+            return null;
         }
     }
 

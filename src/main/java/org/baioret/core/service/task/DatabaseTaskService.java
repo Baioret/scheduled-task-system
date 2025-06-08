@@ -35,7 +35,7 @@ public class DatabaseTaskService implements TaskService {
     }
 
     @Override
-    public void increaseRetryCountForTask(Long id, String category) {
+    public void increaseAttemptsCountForTask(Long id, String category) {
         taskRepository.increaseRetryCountForTask(id, category);
     }
 
@@ -67,10 +67,5 @@ public class DatabaseTaskService implements TaskService {
         Long id = taskRepository.save(task, category);
         LogService.logger.info(String.format("Task with id %s and category %s has been created", id, category));
         return id;
-    }
-
-    @Override
-    public void cancelTask(Long id, String category) {
-        taskRepository.cancelTask(id, category);
     }
 }

@@ -2,29 +2,27 @@ package org.baioret.core.worker;
 
 import org.baioret.core.entity.ScheduledTask;
 import org.baioret.core.enums.TaskStatus;
-import org.baioret.core.holder.ExecutorHolder;
+import org.baioret.core.holder.ErrorHandlerHolder;
 import org.baioret.core.holder.ServiceHolder;
 import org.baioret.core.logging.LogService;
 import org.baioret.core.schedulable.Schedulable;
-import org.baioret.core.service.task.TaskExecutor;
+import org.baioret.core.service.task.TaskErrorHandler;
 import org.baioret.core.service.task.TaskService;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class TaskWorker implements Runnable {
     private final String category;
-
     private final UUID workerId;
     private final TaskService taskService;
-    private final TaskExecutor taskExecutor;
+    private final TaskErrorHandler taskErrorHandler;
 
     private boolean doStop = false;
 
     public TaskWorker(String category, UUID workerId) {
         this.workerId = workerId;
         this.taskService = ServiceHolder.getTaskService();
-        this.taskExecutor = ExecutorHolder.getTaskExecutor();
+        this.taskErrorHandler = ErrorHandlerHolder.getTaskErrorHandler();
         this.category = category;
     }
 
@@ -36,8 +34,15 @@ public class TaskWorker implements Runnable {
         return !this.doStop;
     }
 
-    private synchronized boolean executeTask(Schedulable task, Map<String, String> params) {
-        return task.execute(params);
+    public synchronized boolean executeTask(ScheduledTask task) {
+        try {
+            Schedulable taskClass = (Schedulable) Class.forName(task.getPath()).getDeclaredConstructor().newInstance();
+            return (taskClass.execute(task.getParams()));
+
+        } catch (Exception e) {
+            LogService.logger.severe(e.getMessage());
+            return false;
+        }
     }
 
     @Override
@@ -56,16 +61,14 @@ public class TaskWorker implements Runnable {
                 if (nextTask != null) {
                     LogService.logger.info(String.format("Worker %s start execute task with id %s and category '%s'",
                             workerId, nextTask.getId(), category));
-                    Schedulable taskClass = (Schedulable) Class.forName(nextTask.getPath()).getDeclaredConstructor().newInstance();
-                    if (executeTask(taskClass, nextTask.getParams())) {
+                    if (executeTask(nextTask)) {
                         taskService.changeTaskStatus(nextTask.getId(), TaskStatus.COMPLETED, category);
                         LogService.logger.info(String.format("Task with id %s and category '%s' has been executed",
                                 nextTask.getId(), category));
                     } else {
-                        LogService.logger.info(String.format("Execution of task with id %s and category '%s' has been failed",
+                        LogService.logger.severe(String.format("Task with id %s and category '%s' failed during execution",
                                 nextTask.getId(), category));
-                        taskService.changeTaskStatus(nextTask.getId(), TaskStatus.RETRYING, category);
-                        taskExecutor.executeRetryPolicyForTask(nextTask.getId(), nextTask.getCategory(), nextTask.getRetryCount());
+                        taskErrorHandler.tryToReschedule(nextTask);
                     }
                 }
             }

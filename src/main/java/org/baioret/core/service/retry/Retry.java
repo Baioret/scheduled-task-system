@@ -1,41 +1,35 @@
 package org.baioret.core.service.retry;
 
 public class Retry {
-    private final boolean withRetry;
     private final boolean fixedRetryPolicy;
-    private final Long delayBase;
-    private final Long fixDelayValue;
+    private final double delayBase;
+    private final Long fixedDelayValue;
     private final int maxRetryCount;
     private final Long delayLimit;
 
-    private Retry(boolean withRetry,
+    private Retry(
                   boolean fixedRetryPolicy,
-                  Long delayBase,
-                  Long fixDelayValue,
+                  double delayBase,
+                  Long fixedDelayValue,
                   int maxRetryCount,
                   Long delayLimit) {
-        this.withRetry = withRetry;
         this.fixedRetryPolicy = fixedRetryPolicy;
         this.delayBase = delayBase;
-        this.fixDelayValue = fixDelayValue;
+        this.fixedDelayValue = fixedDelayValue;
         this.maxRetryCount = maxRetryCount;
         this.delayLimit = delayLimit;
-    }
-
-    public boolean isWithRetry() {
-        return withRetry;
     }
 
     public boolean isFixedRetryPolicy() {
         return fixedRetryPolicy;
     }
 
-    public Long getDelayBase() {
+    public double getDelayBase() {
         return delayBase;
     }
 
     public Long getFixDelayValue() {
-        return fixDelayValue;
+        return fixedDelayValue;
     }
 
     public int getMaxRetryCount() {
@@ -49,27 +43,21 @@ public class Retry {
     @Override
     public String toString() {
         return "Delay{" +
-                "withRetry=" + withRetry +
-                ", fixedRetryPolicy=" + fixedRetryPolicy +
+                "fixedRetryPolicy=" + fixedRetryPolicy +
                 ", delayBase=" + delayBase +
-                ", fixDelayValue=" + fixDelayValue +
-                ", maxRetryCount=" + maxRetryCount +
+                ", fixedDelayValue=" + fixedDelayValue +
+                ", maxAttemptsCount=" + maxRetryCount +
                 ", delayLimit=" + delayLimit +
                 '}';
     }
 
     public static class RetryBuilder {
-        private boolean withRetry = false;
         private boolean fixedRetryPolicy = false;
-        private Long delayBase = 0L;
-        private Long fixDelayValue = 0L;
-        private int maxRetryCount = 0;
+        private double delayBase = Math.E;
+        private Long fixedDelayValue = 0L;
+        private int maxAttemptsCount = 0;
         private Long delayLimit = 0L;
 
-        public RetryBuilder setWithRetry(boolean withRetry) {
-            this.withRetry = withRetry;
-            return this;
-        }
 
         public RetryBuilder setFixedRetryPolicy(boolean fixedRetryPolicy) {
             this.fixedRetryPolicy = fixedRetryPolicy;
@@ -81,13 +69,13 @@ public class Retry {
             return this;
         }
 
-        public RetryBuilder setFixDelayValue(Long fixDelayValue) {
-            this.fixDelayValue = fixDelayValue;
+        public RetryBuilder setFixDelayValue(Long fixedDelayValue) {
+            this.fixedDelayValue = fixedDelayValue;
             return this;
         }
 
-        public RetryBuilder setMaxRetryCount(int maxRetryCount) {
-            this.maxRetryCount = maxRetryCount;
+        public RetryBuilder setMaxAttemptsCount(int maxAttemptsCount) {
+            this.maxAttemptsCount = maxAttemptsCount;
             return this;
         }
 
@@ -98,9 +86,9 @@ public class Retry {
 
         public Retry build() {
             return new Retry(
-                    withRetry, fixedRetryPolicy,
-                    delayBase, fixDelayValue,
-                    maxRetryCount, delayLimit);
+                    fixedRetryPolicy,
+                    delayBase, fixedDelayValue,
+                    maxAttemptsCount, delayLimit);
         }
     }
 }

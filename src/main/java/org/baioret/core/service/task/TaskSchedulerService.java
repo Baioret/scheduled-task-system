@@ -10,4 +10,6 @@ public interface TaskSchedulerService {
     <T extends Schedulable> boolean cancelTask(Long id, Class<T> schedulable);
     <T extends Schedulable> Optional<Long> scheduleTask(Class<T> schedulable, Map<String, String> params,
                                                         String executionTime, Retry retry);
+    <T extends Schedulable> Optional<Long> scheduleTask(Class<T> schedulable, Map<String, String> params,
+                                                        String executionTime);
 }

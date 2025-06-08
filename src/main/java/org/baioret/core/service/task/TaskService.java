@@ -9,11 +9,9 @@ public interface TaskService {
 
     Long save(ScheduledTask task, String category);
 
-    void cancelTask(Long id, String category);
-
     void changeTaskStatus(Long id, TaskStatus taskStatus, String category);
 
-    void increaseRetryCountForTask(Long id, String category);
+    void increaseAttemptsCountForTask(Long id, String category);
 
     List<ScheduledTask> getReadyTasksByCategory(String category);
 

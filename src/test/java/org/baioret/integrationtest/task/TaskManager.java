@@ -8,10 +8,7 @@ import org.baioret.integrationtest.EuropeanDateFormatter;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -30,9 +27,9 @@ public class TaskManager {
     }
 
     private void initRetryParams() {
-        Retry defaultRetryParams = new Retry.RetryBuilder().build();
-        Retry fixedRetryParams = new Retry.RetryBuilder().setWithRetry(true).setFixedRetryPolicy(true).setFixDelayValue(60000L).setMaxRetryCount(3).build();
-        Retry exponentialRetryParams = new Retry.RetryBuilder().setWithRetry(true).setMaxRetryCount(3).setDelayLimit(100000L).build();
+        Retry defaultRetryParams = new Retry.RetryBuilder().setMaxAttemptsCount(1).setDelayLimit(1L).build();
+        Retry fixedRetryParams = new Retry.RetryBuilder().setFixedRetryPolicy(true).setFixDelayValue(60000L).setMaxAttemptsCount(3).build();
+        Retry exponentialRetryParams = new Retry.RetryBuilder().setMaxAttemptsCount(3).setDelayLimit(100000L).build();
 
         retries.put(0, defaultRetryParams);
         retries.put(1, fixedRetryParams);
